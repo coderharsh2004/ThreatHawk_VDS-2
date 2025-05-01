@@ -1,0 +1,55 @@
+// Generator
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Datasource
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Enums
+enum ScanType {
+  WEB
+  WEB_DEEP
+  NETWORK
+  NETWORK_DEEP
+}
+
+enum ScanStatus {
+  PENDING
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+// Models
+
+model User {
+  id               Int      @id @default(autoincrement())
+  username         String   @unique
+  name             String
+  email            String   @unique
+  passwordHash     String?  // Optional if using OAuth
+  oauthProvider    String?  // e.g., "google", "github"
+  providerAccountId String? // OAuth provider's user ID
+  createdAt        DateTime @default(now())
+
+  // Relations
+  scans            Scan[]
+}
+
+model Scan {
+  id          Int        @id @default(autoincrement())
+  type        ScanType
+  target      String
+  status      ScanStatus @default(PENDING)
+  scanResult  Json?      // Stores JSON output from scraper
+  reportPath  String?    // Path to locally stored report (later S3 URL)
+  createdAt   DateTime   @default(now())
+
+  // Relations
+  user        User       @relation(fields: [userId], references: [id])
+  userId      Int
+}
