@@ -1,3 +1,4 @@
+
 "use client";
 import { useState } from "react";
 import axios from "axios";
@@ -41,7 +42,7 @@ export default function VulnerabilityScanner() {
     }
   };
 
-  // Render OWASP ZAP results (for WEB scan)
+  // Render OWASP ZAP results (for WEB and WEB_DEEP scans)
   const renderZapResults = (result) => {
     const severityColors = {
       High: "bg-red-100 text-red-800",
@@ -50,8 +51,9 @@ export default function VulnerabilityScanner() {
       Informational: "bg-gray-100 text-gray-800",
     };
 
-    return (
+    return  (
       <div className="space-y-6">
+        {/* Summary Tiles */}
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
           {["High", "Medium", "Low", "Informational", "False Positives"].map((level, idx) => (
             <div key={level} className="bg-white p-4 rounded-lg border border-neutral-200/30 shadow-sm">
@@ -80,7 +82,8 @@ export default function VulnerabilityScanner() {
             </div>
           ))}
         </div>
-
+    
+        {/* Metadata Section */}
         <div className="bg-white p-4 rounded-lg border border-neutral-200/30 shadow-sm">
           <h3 className="text-lg font-semibold text-neutral-900 mb-3">Scan Metadata</h3>
           <div className="text-sm text-neutral-600 space-y-1">
@@ -90,7 +93,8 @@ export default function VulnerabilityScanner() {
             <p><strong>Deep Scan:</strong> {result.is_deep ? "Yes" : "No"}</p>
           </div>
         </div>
-
+    
+        {/* Vulnerabilities List */}
         {result.vulnerabilities?.length ? (
           result.vulnerabilities.map((vuln, idx) => (
             <div
@@ -132,9 +136,9 @@ export default function VulnerabilityScanner() {
         )}
       </div>
     );
-  };
+    
 
-  // Render Nmap results (for NETWORK and NETWORK_DEEP scans)
+  // Render Nmap results (for NETWORK regular scan)
   const renderNmapResults = (result) => {
     return (
       <div className="space-y-6">
@@ -289,6 +293,197 @@ export default function VulnerabilityScanner() {
     );
   };
 
+  // Render Deep Network Scan results (for NETWORK_DEEP) in tables
+  const renderDeepNetworkScanResults = (result) => {
+    return (
+      <div className="space-y-8">
+        {/* Scan Metadata Table */}
+        <div className="bg-white rounded-lg border border-neutral-200/30 shadow-sm p-6">
+          <h3 className="text-lg font-semibold text-neutral-900 mb-4">Scan Metadata</h3>
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-neutral-200">
+              <thead className="bg-neutral-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Field</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Value</th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-neutral-200">
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">Report ID</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{result.report_id || "N/A"}</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">Scan Type</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{result.scan_type_full || result.scan_type || "N/A"}</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">Report Path</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{result.report_path || "N/A"}</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">Deep Scan</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{result.is_deep ? "Yes" : "No"}</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">Scanner</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{result.metadata?.scanner || "N/A"} {result.metadata?.version || ""}</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">Start Time</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{result.metadata?.start_time || "N/A"}</td>
+                </tr>
+                <tr>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">Arguments</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{result.metadata?.args || "N/A"}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        {/* Summary Table */}
+        {result.summary && (
+          <div className="bg-white rounded-lg border border-neutral-200/30 shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Summary</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-neutral-200">
+                <thead className="bg-neutral-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-white bg-black">Metric</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider text-white bg-black">Count</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-neutral-200">
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">Hosts Up</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{result.summary.hosts_up || 0}</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">Open Ports</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{result.summary.open_ports || 0}</td>
+                  </tr>
+                  <tr>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-600">Filtered Ports</td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{result.summary.filtered_ports || 0}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Hosts Table */}
+        {result.hosts?.length > 0 && (
+          <div className="bg-white rounded-lg border border-neutral-200/30 shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Hosts</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-neutral-200">
+                <thead className="bg-neutral-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">IP Address</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Hostnames</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">RTT (ms)</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Reason</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-neutral-200">
+                  {result.hosts.map((host, idx) => (
+                    <tr key={idx}>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{host.ip_address || "N/A"}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">
+                        {host.hostnames?.length ? host.hostnames.map((h) => h.name).join(", ") : "None"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{host.status === "up" ? "Active" : "Inactive"}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{host.round_trip_time || "N/A"}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{host.reason || "N/A"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Open Ports Table */}
+        {result.hosts?.some(host => host.open_ports?.length > 0) && (
+          <div className="bg-white rounded-lg border border-neutral-200/30 shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Open Ports</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-neutral-200">
+                <thead className="bg-neutral-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Host IP</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Port/Protocol</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Service</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Product</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-neutral-200">
+                  {result.hosts.flatMap(host =>
+                    host.open_ports?.map((port, pIdx) => (
+                      <tr key={`${host.ip_address}-${port.portid}-${pIdx}`}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{host.ip_address || "N/A"}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{port.portid}/{port.protocol}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{port.service?.name || "Unknown"}</td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{port.service?.version || port.service?.product || "Unknown"}</td>
+                      </tr>
+                    )) || []
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Vulnerabilities Table */}
+        {result.hosts?.some(host => host.open_ports?.some(port => port.vulnerabilities?.length > 0)) && (
+          <div className="bg-white rounded-lg border border-neutral-200/30 shadow-sm p-6">
+            <h3 className="text-lg font-semibold text-neutral-900 mb-4">Vulnerabilities</h3>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-neutral-200">
+                <thead className="bg-neutral-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Host IP</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Port</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Vulners ID</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">CVSS Score</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-white bg-black uppercase tracking-wider">Exploit URL</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-neutral-200">
+                  {result.hosts.flatMap(host =>
+                    host.open_ports?.flatMap(port =>
+                      port.vulnerabilities?.map((vuln, vIdx) => (
+                        <tr key={`${host.ip_address}-${port.portid}-${vIdx}`}>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{host.ip_address || "N/A"}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{port.portid}/{port.protocol}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{vuln.vulners_id || "N/A"}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-neutral-900">{vuln.cvss_score || "N/A"}</td>
+                          <td className="px-6 py-4 text-sm text-neutral-900">
+                            <a
+                              href={vuln.exploit_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-indigo-600 hover:underline"
+                            >
+                              {vuln.exploit_url || "N/A"}
+                            </a>
+                          </td>
+                        </tr>
+                      )) || []
+                    ) || []
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="mb-8 flex items-center justify-between">
@@ -335,8 +530,9 @@ export default function VulnerabilityScanner() {
                 className="block w-full px-3 py-2 rounded-md border border-neutral-300 focus:ring-indigo-500 focus:border-indigo-500"
               >
                 <option value="NETWORK">Network Scan</option>
-                <option value="NETWORK_DEEP">Deep Network Scan </option>
-                <option value="WEB">Web Scan </option>
+                <option value="NETWORK_DEEP">Deep Network Scan</option>
+                <option value="WEB">Web Scan</option>
+                <option value="WEB_DEEP">Deep Web Scan</option>
               </select>
             </div>
           </div>
@@ -363,13 +559,15 @@ export default function VulnerabilityScanner() {
 
       {scanResult ? (
         <div className="mt-8">
-          {scanResult.scan_type?.includes("zap") || type === "WEB"
-            ? renderZapResults(scanResult)
-            : renderNmapResults(scanResult)}
+          {type === "NETWORK_DEEP" || scanResult.scan_type?.includes("nmap_deep")
+            ? renderDeepNetworkScanResults(scanResult)
+            : (scanResult.scan_type?.includes("zap") || type === "WEB" || type === "WEB_DEEP")
+              ? renderZapResults(scanResult)
+              : renderNmapResults(scanResult)}
         </div>
       ) : (
         <p className="text-neutral-600 text-center mt-8">No scan results available. Run a scan to see results.</p>
       )}
     </div>
   );
-}
+  }}
