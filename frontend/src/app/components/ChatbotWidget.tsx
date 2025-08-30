@@ -7,6 +7,56 @@ interface Message {
   text: string;
 }
 
+const FormattedBotMessage = ({ text }: { text: string }) => {
+  const formatText = (rawText: string) => {
+    const cleanText = rawText.replace(/\*/g, '');
+    const lines = cleanText.split('\n').map(line => line.trim()).filter(line => line);    
+    return lines.map((line, index) => {
+      if (/^\d+\.\s/.test(line)) {
+        const content = line.replace(/^\d+\.\s/, '');
+        const number = line.match(/^(\d+)\./)?.[1];
+        return (
+          <div key={index} className="mb-1 flex gap-2">
+            <span className="font-semibold text-indigo-600 min-w-[20px]">{number}.</span>
+            <span>{content}</span>
+          </div>
+        );
+      }
+      if (/^[-•]\s/.test(line)) {
+        const content = line.replace(/^[-•]\s/, '');
+        return (
+          <div key={index} className="mb-1 flex gap-2">
+            <span className="font-semibold text-indigo-600 min-w-[20px]">•</span>
+            <span>{content}</span>
+          </div>
+        );
+      }
+      
+      // Handle headers (text followed by colon)
+      if (line.endsWith(':') && line.length < 50) {
+        return (
+          <div key={index} className="font-semibold text-gray-800 mt-2 mb-1">
+            {line}
+          </div>
+        );
+      }
+      
+      // Regular paragraph text
+      return (
+        <div key={index} className="mb-1">
+          {line}
+        </div>
+      );
+    });
+  };
+
+  return (
+    <div className="space-y-1">
+      {formatText(text)}
+    </div>
+  );
+};
+
 export default function VulnerabilityChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -136,13 +186,17 @@ export default function VulnerabilityChatWidget() {
                   )}
                 </div>
                 <div
-                    className={`max-w-[70%] p-3 rounded-lg text-sm ${
+                    className={`max-w-[70%] p-3 rounded-lg text-sm leading-relaxed ${
                     msg.sender === "user"
                       ? "bg-indigo-600 text-white ml-auto"
                       : "bg-white text-gray-800 border border-gray-200 shadow-sm"
                   }`}
                 >
-                  {msg.text}
+                  {msg.sender === "bot" ? (
+                    <FormattedBotMessage text={msg.text} />
+                  ) : (
+                    msg.text
+                  )}
                 </div>
               </div>
             ))}
@@ -186,7 +240,3 @@ export default function VulnerabilityChatWidget() {
     </>
   );
 }
-
-
-
-
