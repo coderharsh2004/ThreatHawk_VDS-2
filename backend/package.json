@@ -7,9 +7,15 @@
     "dev": "ts-node src/index.ts"
   },
   "devDependencies": {
-    "@types/node": "^22.15.2"
+    "@types/node": "^22.17.2",
+    "@types/node-fetch": "^2.6.13",
+    "@types/xml2js": "^0.4.14",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
+    "@langchain/core": "^0.3.72",
     "@types/axios": "^0.9.36",
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.17",
@@ -20,6 +26,9 @@
     "cors": "^2.8.5",
     "dotenv": "^16.5.0",
     "express": "^5.1.0",
-    "jsonwebtoken": "^9.0.2"
+    "jsonwebtoken": "^9.0.2",
+    "langchain": "^0.3.31",
+    "node-fetch": "^3.3.2",
+    "xml2js": "^0.6.2"
   }
 }
