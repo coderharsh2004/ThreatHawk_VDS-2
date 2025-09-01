@@ -441,9 +441,28 @@ export default function ViewReport() {
   return (
     <div className="min-h-screen bg-neutral-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-neutral-900">
-          Scan Report: {scanId}
-        </h1>
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-semibold text-neutral-900">
+            Scan Report: {scanId}
+          </h1>
+          <button className="bg-indigo-600 text-white px-3 py-1.5 text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors duration-200 ml-2 flex items-center gap-2">
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
+              <defs>
+                <linearGradient id="sparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#8b5cf6" />
+                  <stop offset="25%" stopColor="#a855f7" />
+                  <stop offset="50%" stopColor="#c084fc" />
+                  <stop offset="75%" stopColor="#3b82f6" />
+                  <stop offset="100%" stopColor="#06b6d4" />
+                </linearGradient>
+              </defs>
+              <path d="M12 2L13.5 8.5L20 10L13.5 11.5L12 18L10.5 11.5L4 10L10.5 8.5L12 2Z" fill="url(#sparkleGradient)"/>
+              <path d="M6 4L6.8 6.8L9 7.5L6.8 8.2L6 11L5.2 8.2L3 7.5L5.2 6.8L6 4Z" fill="url(#sparkleGradient)" opacity="0.8"/>
+              <path d="M18 14L18.6 16.6L21 17.2L18.6 17.8L18 20L17.4 17.8L15 17.2L17.4 16.6L18 14Z" fill="url(#sparkleGradient)" opacity="0.7"/>
+            </svg>
+            Generate AI Report
+          </button>
+        </div>
         <button
           onClick={() => router.push("/scan-history")}
           className="px-4 py-2 text-sm font-medium text-indigo-600 hover:text-indigo-900"

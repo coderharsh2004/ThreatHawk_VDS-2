@@ -7,6 +7,106 @@ interface Message {
   text: string;
 }
 
+const FormattedBotMessage = ({ text }: { text: string }) => {
+  // Helper function to format content within points
+  const formatPointContent = (content: string) => {
+    // Check if content starts with a term followed by colon
+    const colonIndex = content.indexOf(':');
+    if (colonIndex > 0 && colonIndex < 50) {
+      const pointName = content.substring(0, colonIndex + 1);
+      const description = content.substring(colonIndex + 1).trim();
+      return (
+        <>
+          <span className="font-bold text-gray-800">{pointName}</span> {description}
+        </>
+      );
+    }
+    return content;
+  };
+
+  const formatText = (rawText: string) => {
+    const cleanText = rawText.replace(/\*/g, '');
+    const lines = cleanText.split('\n').map(line => line.trim()).filter(line => line);    
+    
+    return lines.map((line, index) => {
+      // Handle markdown bold numbered lists (e.g., **2.**)
+      if (/^\*\*\d+\.\*\*/.test(line)) {
+        const content = line.replace(/^\*\*\d+\.\*\*\s*/, '');
+        const number = line.match(/^\*\*(\d+)\.\*\*/)?.[1];
+        const formattedContent = formatPointContent(content);
+        return (
+          <div key={index} className="mb-2 flex gap-3">
+            <span className="font-bold text-indigo-600 min-w-[24px]">{number}.</span>
+            <span className="flex-1">{formattedContent}</span>
+          </div>
+        );
+      }
+      
+      // Handle regular numbered lists
+      if (/^\d+\.\s/.test(line)) {
+        const content = line.replace(/^\d+\.\s/, '');
+        const number = line.match(/^(\d+)\./)?.[1];
+        const formattedContent = formatPointContent(content);
+        return (
+          <div key={index} className="mb-2 flex gap-3">
+            <span className="font-bold text-indigo-600 min-w-[24px]">{number}.</span>
+            <span className="flex-1">{formattedContent}</span>
+          </div>
+        );
+      }
+      
+      // Handle lines that start with a term followed by colon (point names)
+      if (/^[A-Za-z][^:]*:\s/.test(line) && !line.endsWith(':')) {
+        const colonIndex = line.indexOf(':');
+        const pointName = line.substring(0, colonIndex + 1);
+        const content = line.substring(colonIndex + 1).trim();
+        return (
+          <div key={index} className="mb-2 flex gap-3">
+            <span className="font-bold text-indigo-600 min-w-[20px]">•</span>
+            <span className="flex-1">
+              <span className="font-bold text-gray-800">{pointName}</span> {content}
+            </span>
+          </div>
+        );
+      }
+      
+      // Handle bullet points with bold bullets
+      if (/^[-•]\s/.test(line)) {
+        const content = line.replace(/^[-•]\s/, '');
+        const formattedContent = formatPointContent(content);
+        return (
+          <div key={index} className="mb-2 flex gap-3">
+            <span className="font-bold text-indigo-600 min-w-[24px]">•</span>
+            <span className="flex-1">{formattedContent}</span>
+          </div>
+        );
+      }
+      
+      // Handle headers (text followed by colon)
+      if (line.endsWith(':') && line.length < 80) {
+        return (
+          <div key={index} className="font-bold text-gray-800 mt-4 mb-2">
+            {line}
+          </div>
+        );
+      }
+      
+      // Regular paragraph text
+      return (
+        <div key={index} className="mb-2 leading-relaxed">
+          {line}
+        </div>
+      );
+    });
+  };
+
+  return (
+    <div className="space-y-1">
+      {formatText(text)}
+    </div>
+  );
+};
+
 export default function VulnerabilityChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -136,13 +236,17 @@ export default function VulnerabilityChatWidget() {
                   )}
                 </div>
                 <div
-                    className={`max-w-[70%] p-3 rounded-lg text-sm ${
+                    className={`max-w-[70%] p-3 rounded-lg text-sm leading-relaxed ${
                     msg.sender === "user"
                       ? "bg-indigo-600 text-white ml-auto"
                       : "bg-white text-gray-800 border border-gray-200 shadow-sm"
                   }`}
                 >
-                  {msg.text}
+                  {msg.sender === "bot" ? (
+                    <FormattedBotMessage text={msg.text} />
+                  ) : (
+                    msg.text
+                  )}
                 </div>
               </div>
             ))}
@@ -186,7 +290,3 @@ export default function VulnerabilityChatWidget() {
     </>
   );
 }
-
-
-
-
