@@ -460,7 +460,7 @@ export default function ViewReport() {
               <path d="M6 4L6.8 6.8L9 7.5L6.8 8.2L6 11L5.2 8.2L3 7.5L5.2 6.8L6 4Z" fill="url(#sparkleGradient)" opacity="0.8"/>
               <path d="M18 14L18.6 16.6L21 17.2L18.6 17.8L18 20L17.4 17.8L15 17.2L17.4 16.6L18 14Z" fill="url(#sparkleGradient)" opacity="0.7"/>
             </svg>
-            AI Report
+            Generate AI Report
           </button>
         </div>
         <button

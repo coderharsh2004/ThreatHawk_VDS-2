@@ -8,34 +8,84 @@ interface Message {
 }
 
 const FormattedBotMessage = ({ text }: { text: string }) => {
+  // Helper function to format content within points
+  const formatPointContent = (content: string) => {
+    // Check if content starts with a term followed by colon
+    const colonIndex = content.indexOf(':');
+    if (colonIndex > 0 && colonIndex < 50) {
+      const pointName = content.substring(0, colonIndex + 1);
+      const description = content.substring(colonIndex + 1).trim();
+      return (
+        <>
+          <span className="font-bold text-gray-800">{pointName}</span> {description}
+        </>
+      );
+    }
+    return content;
+  };
+
   const formatText = (rawText: string) => {
     const cleanText = rawText.replace(/\*/g, '');
     const lines = cleanText.split('\n').map(line => line.trim()).filter(line => line);    
+    
     return lines.map((line, index) => {
-      if (/^\d+\.\s/.test(line)) {
-        const content = line.replace(/^\d+\.\s/, '');
-        const number = line.match(/^(\d+)\./)?.[1];
+      // Handle markdown bold numbered lists (e.g., **2.**)
+      if (/^\*\*\d+\.\*\*/.test(line)) {
+        const content = line.replace(/^\*\*\d+\.\*\*\s*/, '');
+        const number = line.match(/^\*\*(\d+)\.\*\*/)?.[1];
+        const formattedContent = formatPointContent(content);
         return (
-          <div key={index} className="mb-1 flex gap-2">
-            <span className="font-semibold text-indigo-600 min-w-[20px]">{number}.</span>
-            <span>{content}</span>
+          <div key={index} className="mb-2 flex gap-3">
+            <span className="font-bold text-indigo-600 min-w-[24px]">{number}.</span>
+            <span className="flex-1">{formattedContent}</span>
           </div>
         );
       }
+      
+      // Handle regular numbered lists
+      if (/^\d+\.\s/.test(line)) {
+        const content = line.replace(/^\d+\.\s/, '');
+        const number = line.match(/^(\d+)\./)?.[1];
+        const formattedContent = formatPointContent(content);
+        return (
+          <div key={index} className="mb-2 flex gap-3">
+            <span className="font-bold text-indigo-600 min-w-[24px]">{number}.</span>
+            <span className="flex-1">{formattedContent}</span>
+          </div>
+        );
+      }
+      
+      // Handle lines that start with a term followed by colon (point names)
+      if (/^[A-Za-z][^:]*:\s/.test(line) && !line.endsWith(':')) {
+        const colonIndex = line.indexOf(':');
+        const pointName = line.substring(0, colonIndex + 1);
+        const content = line.substring(colonIndex + 1).trim();
+        return (
+          <div key={index} className="mb-2 flex gap-3">
+            <span className="font-bold text-indigo-600 min-w-[20px]">•</span>
+            <span className="flex-1">
+              <span className="font-bold text-gray-800">{pointName}</span> {content}
+            </span>
+          </div>
+        );
+      }
+      
+      // Handle bullet points with bold bullets
       if (/^[-•]\s/.test(line)) {
         const content = line.replace(/^[-•]\s/, '');
+        const formattedContent = formatPointContent(content);
         return (
-          <div key={index} className="mb-1 flex gap-2">
-            <span className="font-semibold text-indigo-600 min-w-[20px]">•</span>
-            <span>{content}</span>
+          <div key={index} className="mb-2 flex gap-3">
+            <span className="font-bold text-indigo-600 min-w-[24px]">•</span>
+            <span className="flex-1">{formattedContent}</span>
           </div>
         );
       }
       
       // Handle headers (text followed by colon)
-      if (line.endsWith(':') && line.length < 50) {
+      if (line.endsWith(':') && line.length < 80) {
         return (
-          <div key={index} className="font-semibold text-gray-800 mt-2 mb-1">
+          <div key={index} className="font-bold text-gray-800 mt-4 mb-2">
             {line}
           </div>
         );
@@ -43,7 +93,7 @@ const FormattedBotMessage = ({ text }: { text: string }) => {
       
       // Regular paragraph text
       return (
-        <div key={index} className="mb-1">
+        <div key={index} className="mb-2 leading-relaxed">
           {line}
         </div>
       );
