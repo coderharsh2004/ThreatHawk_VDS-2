@@ -1,7 +1,6 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, use } from "react";
 import { useParams, useRouter } from "next/navigation";
-
 interface Report {
   report_id: string;
   scan_type: string;
@@ -438,6 +437,7 @@ export default function ViewReport() {
       </div>
     );
 
+  
   return (
     <div className="min-h-screen bg-neutral-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="mb-8 flex items-center justify-between">
@@ -445,7 +445,8 @@ export default function ViewReport() {
           <h1 className="text-2xl font-semibold text-neutral-900">
             Scan Report: {scanId}
           </h1>
-          <button className="bg-indigo-600 text-white px-3 py-1.5 text-sm font-bold rounded-lg hover:bg-indigo-700 transition-colors duration-200 ml-2 flex items-center gap-2">
+          <button onClick ={() => router.push(`/dashboard/${scanId}/viewreport/AIReport`)}
+          className="bg-indigo-600 text-white px-3 py-1.5 text-sm rounded-lg hover:bg-indigo-700 transition-colors duration-200 ml-2 flex items-center gap-2">
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none">
               <defs>
                 <linearGradient id="sparkleGradient" x1="0%" y1="0%" x2="100%" y2="100%">

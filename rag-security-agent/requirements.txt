@@ -1,0 +1,32 @@
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+google-generativeai==0.3.2
+
+# LangChain ecosystem
+langchain==0.1.0
+langchain-google-genai==0.0.6
+langchain-community==0.0.12
+langchain-chroma==0.1.0
+
+# Vector stores and embeddings
+chromadb==0.4.18
+sentence-transformers==2.2.2
+faiss-cpu==1.7.4
+
+# Data processing
+pandas==2.1.4
+numpy==1.24.4
+python-multipart==0.0.6
+pydantic==2.5.2
+python-dotenv==1.0.0
+aiofiles==23.2.0
+python-json-logger==2.0.7
+
+# Additional utilities
+tiktoken==0.5.2
+pypdf==3.17.4
+langchain
+langchain-community
+langchain-core
+langchain-openai
+langchain-huggingface
